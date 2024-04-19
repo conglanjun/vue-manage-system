@@ -2,7 +2,7 @@
 	<el-descriptions :title="title" :column="column" border>
 		<el-descriptions-item v-for="item in list" :span="item.span">
 			<template #label> {{ item.label }} </template>
-			<slot :name="item.prop" :rows="row">
+			<slot :name="item.prop" :rows="row" :formatter="item.formatter">
 				{{ item.value || row[item.prop] }}
 			</slot>
 		</el-descriptions-item>

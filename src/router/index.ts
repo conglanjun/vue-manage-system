@@ -7,7 +7,8 @@ import 'nprogress/nprogress.css';
 const routes: RouteRecordRaw[] = [
     {
         path: '/',
-        redirect: '/dashboard',
+        // redirect: '/dashboard',
+        redirect: '/system-user',
     },
     {
         path: '/',
@@ -273,7 +274,8 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     NProgress.start();
-    const role = localStorage.getItem('ms_phone');
+    // const role = localStorage.getItem('ms_phone');
+    const role = localStorage.getItem('ms_username');
     const permiss = usePermissStore();
 
     if (!role && to.meta.noAuth !== true) {

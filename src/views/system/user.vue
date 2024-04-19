@@ -25,7 +25,7 @@ import { ref, reactive } from 'vue';
 import { ElMessage } from 'element-plus';
 import { CirclePlusFilled } from '@element-plus/icons-vue';
 import { User } from '@/types/user';
-import { fetchUserData } from '@/api';
+import { fetchUserData, fetchUserDataRequest } from '@/api';
 import TableCustom from '@/components/table-custom.vue';
 import TableDetail from '@/components/table-detail.vue';
 import TableSearch from '@/components/table-search.vue';
@@ -47,7 +47,8 @@ let columns = ref([
     { type: 'index', label: '序号', width: 55, align: 'center' },
     { prop: 'name', label: '用户名' },
     { prop: 'phone', label: '手机号' },
-    { prop: 'role', label: '角色' },
+    { prop: 'role', label: '角色', formatter: roleFormatter},
+    { prop: 'displayRoomInfo', label: '宿舍' },
     { prop: 'operator', label: '操作', width: 250 },
 ])
 const page = reactive({
@@ -55,11 +56,30 @@ const page = reactive({
     size: 10,
     total: 0,
 })
+
+function roleFormatter (row, column, cellValue, index) {
+    // console.log(row)
+    return row?.displayName
+}
+
+function roleFormatter1 (row, column, cellValue, index) {
+    console.log(row)
+    return row?.displayName
+}
+
 const tableData = ref<User[]>([]);
 const getData = async () => {
-    const res = await fetchUserData()
-    tableData.value = res.data.list;
-    page.total = res.data.pageTotal;
+    // const res = await fetchUserData()
+    // tableData.value = res.data.list;
+    // page.total = res.data.pageTotal;
+
+    fetchUserDataRequest().then(function (result) { 
+        console.log(result);
+        tableData.value = result.data.userDataList
+        page.total = result.data.userDataList.length
+    }).catch((err) => {
+        console.log(err)
+    })
 };
 getData();
 
@@ -120,8 +140,8 @@ const handleView = (row: User) => {
             label: '密码',
         },
         {
-            prop: 'email',
-            label: '邮箱',
+            prop: 'displayRoomInfo',
+            label: '宿舍',
         },
         {
             prop: 'phone',
@@ -130,9 +150,10 @@ const handleView = (row: User) => {
         {
             prop: 'role',
             label: '角色',
+            formatter: roleFormatter1,
         },
         {
-            prop: 'date',
+            prop: 'createTime',
             label: '注册日期',
         },
     ]

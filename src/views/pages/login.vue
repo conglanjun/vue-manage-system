@@ -54,6 +54,7 @@ import { loginRequest } from '@/api';
 
 interface LoginInfo {
     phone: string;
+    name: string;
     password: string;
 }
 
@@ -64,6 +65,7 @@ const checked = ref(lgStr ? true : false);
 const router = useRouter();
 const param = reactive<LoginInfo>({
     phone: defParam ? defParam.phone : '',
+    name: defParam ? defParam.name : '',
     password: defParam ? defParam.password : '',
 });
 
@@ -72,6 +74,13 @@ const rules: FormRules = {
         {
             required: true,
             message: '请输入电话号',
+            trigger: 'blur',
+        },
+    ],
+    name: [
+        {
+            required: true,
+            message: '请输入用户名',
             trigger: 'blur',
         },
     ],
@@ -85,12 +94,19 @@ const submitForm = (formEl: FormInstance | undefined) => {
         console.log(result);
         ElMessage.success('登录成功');
         localStorage.setItem('ms_phone', param.phone);
+        param.name = result.data.userServiceResult.user.name
+        localStorage.setItem('ms_username', result.data.userServiceResult.user.name);
         // const keys = permiss.defaultList[param.phone == '18740036034' ? 'admin' : 'user'];
-        // permiss.handleSet(keys);
-        // localStorage.setItem('ms_keys', JSON.stringify(keys));
-        router.push('/');
+        const keys = permiss.defaultList[result.data.userServiceResult.user.role.name];
+        if (typeof keys === 'undefined') {
+            permiss.handleSet([]);
+        } else {
+            permiss.handleSet(keys);
+        }
+        localStorage.setItem('ms_keys', JSON.stringify(keys));
         if (result.data.userServiceResult.status === 'LOGIN') {
             localStorage.setItem('login-param', JSON.stringify(param));
+            router.push('/');
         } else {
             localStorage.removeItem('login-param');
         }

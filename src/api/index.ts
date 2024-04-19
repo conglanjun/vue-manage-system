@@ -26,3 +26,9 @@ export const loginRequest = async (user) => {
     console.log(response)
     return response
 }
+
+export const fetchUserDataRequest = async () => {
+    const response = await axios.get('api/userList')
+    console.log(response)
+    return response
+}

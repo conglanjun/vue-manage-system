@@ -38,7 +38,7 @@
         <el-table class="mgb20" :style="{ width: '100%' }" border :data="tableData" :row-key="rowKey"
             @selection-change="handleSelectionChange" table-layout="auto">
             <template v-for="item in columns" :key="item.prop">
-                <el-table-column v-if="item.visible" :prop="item.prop" :label="item.label" :width="item.width"
+                <el-table-column v-if="item.visible" :prop="item.prop" :label="item.label" :width="item.width" :formatter="item.formatter"
                     :type="item.type" :align="item.align || 'center'">
 
                     <template #default="{ row, column, $index }" v-if="item.type === 'index'">

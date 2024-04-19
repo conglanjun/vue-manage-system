@@ -38,7 +38,7 @@
 				<!-- 用户名下拉菜单 -->
 				<el-dropdown class="user-name" trigger="click" @command="handleCommand">
 					<span class="el-dropdown-link">
-						{{ phone }}
+						{{ username }}
 						<el-icon class="el-icon--right">
 							<arrow-down />
 						</el-icon>
@@ -64,6 +64,7 @@ import { useRouter } from 'vue-router';
 import imgurl from '../assets/img/img.jpg';
 
 const phone: string | null = localStorage.getItem('ms_phone');
+const username: string | null = localStorage.getItem('ms_username');
 const message: number = 2;
 
 const sidebar = useSidebarStore();
@@ -83,6 +84,7 @@ const router = useRouter();
 const handleCommand = (command: string) => {
 	if (command == 'loginout') {
 		localStorage.removeItem('ms_phone');
+		localStorage.removeItem('ms_username');
 		router.push('/login');
 	} else if (command == 'user') {
 		router.push('/ucenter');
