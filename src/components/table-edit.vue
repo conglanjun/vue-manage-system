@@ -9,7 +9,7 @@
 					<el-input-number v-else-if="item.type === 'number'" v-model="form[item.prop]"
 						:disabled="item.disabled" controls-position="right"></el-input-number>
 					<el-select v-else-if="item.type === 'select'" v-model="form[item.prop]" :disabled="item.disabled"
-						:placeholder="item.placeholder" clearable>
+						:placeholder="item.placeholder" @change="changeSelected(formRef, item.prop)" clearable>
 						<el-option v-for="opt in item.opts" :label="opt.label" :value="opt.value"></el-option>
 					</el-select>
 					<el-date-picker v-else-if="item.type === 'date'" type="date" v-model="form[item.prop]"
@@ -42,7 +42,7 @@ import { FormOption } from '@/types/form-option';
 import { FormInstance, FormRules, UploadProps } from 'element-plus';
 import { PropType, ref } from 'vue';
 
-const { options, formData, edit, update } = defineProps({
+const { options, formData, edit, update, changeSelect } = defineProps({
 	options: {
 		type: Object as PropType<FormOption>,
 		required: true
@@ -56,6 +56,10 @@ const { options, formData, edit, update } = defineProps({
 		required: false
 	},
 	update: {
+		type: Function,
+		required: true
+	},
+	changeSelect: {
 		type: Function,
 		required: true
 	}
@@ -80,6 +84,11 @@ const saveEdit = (formEl: FormInstance | undefined) => {
 		update(form.value);
 	});
 };
+
+const changeSelected = (formEl: FormInstance | undefined, prop: string) => {
+	if (!formEl) return;
+	changeSelect(form.value, prop)
+}
 
 const handleAvatarSuccess: UploadProps['onSuccess'] = (response, uploadFile) => {
 	form.value.thumb = URL.createObjectURL(uploadFile.raw!);

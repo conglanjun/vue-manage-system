@@ -12,7 +12,7 @@
         </div>
         <el-dialog :title="isEdit ? '编辑' : '新增'" v-model="visible" width="700px" destroy-on-close
             :close-on-click-modal="false" @close="closeDialog">
-            <TableEdit :form-data="rowData" :options="options" :edit="isEdit" :update="updateData" />
+            <TableEdit :form-data="rowData" :options="options" :edit="isEdit" :update="updateData" :changeSelect="changeSelect"/>
         </el-dialog>
         <el-dialog title="查看详情" v-model="visible1" width="700px" destroy-on-close>
             <TableDetail :data="viewData"></TableDetail>
@@ -25,7 +25,7 @@ import { ref, reactive } from 'vue';
 import { ElMessage } from 'element-plus';
 import { CirclePlusFilled } from '@element-plus/icons-vue';
 import { User } from '@/types/user';
-import { fetchUserData, fetchUserDataRequest } from '@/api';
+import { fetchUserData, fetchUserDataRequest, fetchRoleListRequest, fetchBuildingListRequest, fetchRoomListRequest } from '@/api';
 import TableCustom from '@/components/table-custom.vue';
 import TableDetail from '@/components/table-detail.vue';
 import TableSearch from '@/components/table-search.vue';
@@ -62,11 +62,6 @@ function roleFormatter (row, column, cellValue, index) {
     return row?.displayName
 }
 
-function roleFormatter1 (row, column, cellValue, index) {
-    console.log(row)
-    return row?.displayName
-}
-
 const tableData = ref<User[]>([]);
 const getData = async () => {
     // const res = await fetchUserData()
@@ -75,6 +70,9 @@ const getData = async () => {
 
     fetchUserDataRequest().then(function (result) { 
         console.log(result);
+        // for (let i = 0; i < result.data.userDataList.length; i++) {
+        //     result.data.userDataList[i].roleIdSelected = 0
+        // }
         tableData.value = result.data.userDataList
         page.total = result.data.userDataList.length
     }).catch((err) => {
@@ -88,6 +86,9 @@ const changePage = (val: number) => {
     getData();
 };
 
+var roleList = []
+var buildingList = []
+var roomList = []
 // 新增/编辑弹窗相关
 let options = ref<FormOption>({
     labelWidth: '100px',
@@ -95,23 +96,61 @@ let options = ref<FormOption>({
     list: [
         { type: 'input', label: '用户名', prop: 'name', required: true },
         { type: 'input', label: '手机号', prop: 'phone', required: true },
-        { type: 'input', label: '密码', prop: 'password', required: true },
-        { type: 'input', label: '邮箱', prop: 'email', required: true },
-        { type: 'input', label: '角色', prop: 'role', required: true },
+        // { type: 'input', label: '密码', prop: 'password', required: true },
+        // { type: 'select', label: '权限修改', prop: 'roleIdSelected', opts: roleList, required: true },
+        // { type: 'select', label: '分配宿舍', prop: 'buildingIdSelected', opts: buildingList, required: true },
+        { type: 'select', label: '分配宿舍', prop: 'roomIdSelected', opts: roomList, required: true },
     ]
 })
+
+const getRoleList = async () => {
+    const roleResponse = await fetchRoleListRequest()
+    console.log(roleResponse)
+    for (let i = 0; i < roleResponse.data.roleList.length; i++) {
+        roleResponse.data.roleList[i].label = roleResponse.data.roleList[i].displayName;
+        roleResponse.data.roleList[i].value = roleResponse.data.roleList[i].id;
+    }
+    roleList = roleResponse.data.roleList
+    options.value.list.push({ type: 'select', label: '权限修改', prop: 'roleIdSelected', opts: roleList, required: true })
+    roleList = roleResponse.data.roleList
+}
+
+getRoleList()
+
+const getBuildingList = async () => {
+    const buildingResponse = await fetchBuildingListRequest()
+    console.log(buildingResponse)
+    for (let i = 0; i < buildingResponse.data.buildingDataList.length; i++) {
+        buildingResponse.data.buildingDataList[i].label = buildingResponse.data.buildingDataList[i].name;
+        buildingResponse.data.buildingDataList[i].value = buildingResponse.data.buildingDataList[i].id;
+    }
+    buildingList = buildingResponse.data.buildingDataList
+    options.value.list.push({ type: 'select', label: '修改楼号', prop: 'buildingIdSelected', opts: buildingList, required: true })
+    buildingList = buildingResponse.data.buildingDataList
+}
+
+getBuildingList()
+
+
 const visible = ref(false);
 const isEdit = ref(false);
 const rowData = ref({});
-const handleEdit = (row: User) => {
+const handleEdit = async (row: User) => {
+    console.log(row)
     rowData.value = { ...row };
     isEdit.value = true;
     visible.value = true;
 };
-const updateData = () => {
+const updateData = (value) => {
+    console.log(value)
     closeDialog();
     getData();
 };
+
+const changeSelect = (value, prop) => {
+    console.log(prop)
+    console.log(value)
+}
 
 const closeDialog = () => {
     visible.value = false;
@@ -135,10 +174,10 @@ const handleView = (row: User) => {
             prop: 'name',
             label: '用户名',
         },
-        {
-            prop: 'password',
-            label: '密码',
-        },
+        // {
+        //     prop: 'password',
+        //     label: '密码',
+        // },
         {
             prop: 'displayRoomInfo',
             label: '宿舍',
@@ -150,7 +189,6 @@ const handleView = (row: User) => {
         {
             prop: 'role',
             label: '角色',
-            formatter: roleFormatter1,
         },
         {
             prop: 'createTime',

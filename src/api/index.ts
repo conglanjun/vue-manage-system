@@ -32,3 +32,22 @@ export const fetchUserDataRequest = async () => {
     console.log(response)
     return response
 }
+
+export const fetchRoleListRequest = async () => {
+    const response = await axios.get('api/roleList')
+    console.log(response)
+    return response
+}
+
+export const fetchBuildingListRequest = async () => {
+    const response = await axios.get('api/buildingList')
+    console.log(response)
+    return response
+}
+
+export const fetchRoomListRequest = async (buildingId) => {
+    const response = await axios.get('api/roomList?buildingId=' + buildingId)
+    console.log(response)
+    return response
+}
+
